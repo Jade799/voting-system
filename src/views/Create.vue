@@ -3,37 +3,49 @@
     <div class="create-container">
       <h1 class="page-title">创建投票</h1>
 
-      <el-form :model="form" label-width="100px" class="create-form">
+      <el-form :model="form" label-width="110px" class="create-form">
         <el-form-item label="投票标题" required>
           <el-input v-model="form.title" placeholder="请输入投票标题" maxlength="100" show-word-limit />
         </el-form-item>
 
         <el-form-item label="投票描述">
-          <el-input
-            v-model="form.description"
-            type="textarea"
-            :rows="3"
-            placeholder="请描述投票的目的和规则（选填）"
-          />
+          <el-input v-model="form.description" type="textarea" :rows="3" placeholder="说明投票目的、范围或规则" />
         </el-form-item>
 
         <el-form-item label="投票算法" required>
           <el-radio-group v-model="form.algorithm" class="algo-radio-group">
-            <el-radio
-              v-for="(label, key) in algorithmLabels"
-              :key="key"
-              :value="key"
-              class="algo-radio-card"
-            >
+            <el-radio v-for="(label, key) in algorithmLabels" :key="key" :value="key" class="algo-radio-card">
               <div class="algo-card-inner">
-                <el-icon :size="24" :color="algorithmColors[key]">
-                  <component :is="getIcon(key)" />
-                </el-icon>
+                <el-icon :size="26" :color="algorithmColors[key]"><component :is="getIcon(key)" /></el-icon>
                 <span class="algo-name">{{ label }}</span>
                 <span class="algo-desc">{{ algoDescriptions[key] }}</span>
               </div>
             </el-radio>
           </el-radio-group>
+        </el-form-item>
+
+        <el-form-item label="可投权限" required>
+          <el-radio-group v-model="form.visibility" class="visibility-group">
+            <el-radio-button value="public">公开投票</el-radio-button>
+            <el-radio-button value="certified">认证用户可投</el-radio-button>
+            <el-radio-button value="enterprise">本企业内部</el-radio-button>
+          </el-radio-group>
+          <div v-if="form.visibility !== 'public'" class="form-tip">
+            受限投票需要当前账号完成企业认证；企业内部投票会自动限定为 {{ currentUser.companyName || '当前企业' }}。
+          </div>
+        </el-form-item>
+
+        <el-form-item label="实名要求">
+          <div class="identity-setting">
+            <el-switch
+              v-model="form.requireRealName"
+              active-text="强制实名投票"
+              inactive-text="允许匿名或公开"
+            />
+            <div class="form-tip">
+              开启后，投票人必须实名提交，投票页不会出现匿名选项；关闭时，投票人可自行选择匿名或公开。
+            </div>
+          </div>
         </el-form-item>
 
         <el-form-item label="截止时间" required>
@@ -60,22 +72,16 @@
                 @click="form.options.splice(idx, 1)"
               />
             </div>
-            <el-button
-              type="primary"
-              link
-              :icon="Plus"
-              @click="form.options.push({ label: '' })"
-              :disabled="form.options.length >= 20"
-            >
+            <el-button type="primary" link :icon="Plus" :disabled="form.options.length >= 20" @click="form.options.push({ label: '' })">
               添加选项（{{ form.options.length }}/20）
             </el-button>
           </div>
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" size="large" @click="onCreate" :disabled="!canCreate">
+          <el-button type="primary" size="large" :loading="submitting" :disabled="!canCreate" @click="onCreate">
             <el-icon><CircleCheck /></el-icon>
-            提交审核
+            发布投票
           </el-button>
           <el-button size="large" @click="$router.push('/')">取消</el-button>
         </el-form-item>
@@ -85,125 +91,122 @@
 </template>
 
 <script setup>
-import { reactive, computed } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, ElLoading } from 'element-plus' // 引入 Loading 组件
-import { Plus, Delete, CircleCheck } from '@element-plus/icons-vue'
+import { ElLoading, ElMessage } from 'element-plus'
+import { CircleCheck, Delete, Plus } from '@element-plus/icons-vue'
 import {
   CircleCheck as IconCheck,
   Select as IconSelect,
-  TrendCharts as IconTrend,
   Sort as IconSort,
-  Star as IconStar
+  Star as IconStar,
+  TrendCharts as IconTrend
 } from '@element-plus/icons-vue'
-import { algorithmLabels, algorithmColors, polls, currentUser } from '../mock/polls.js'
-// 💡 导入你之前创建的审核工具函数
-import { checkTextSafe } from '../utils/audit.js' 
+import { algorithmColors, algorithmLabels, currentUser } from '../mock/polls.js'
+import { api } from '../services/api.js'
+import { checkTextSafe } from '../utils/audit.js'
 
 const router = useRouter()
+const submitting = ref(false)
 
 const getIcon = (key) => ({
-  single: IconCheck, multiple: IconSelect,
-  weighted: IconTrend, borda: IconSort, scoring: IconStar
+  single: IconCheck,
+  multiple: IconSelect,
+  weighted: IconTrend,
+  borda: IconSort,
+  scoring: IconStar
 }[key] || IconCheck)
 
 const algoDescriptions = {
-  single: '每人限选一项', multiple: '每人可选多项',
-  weighted: '分配权重总分100', borda: '按喜好排序', scoring: '每项1-10分打分'
+  single: '每人限选一项',
+  multiple: '每人可选多项',
+  weighted: '分配权重总分 100',
+  borda: '按偏好排序',
+  scoring: '每项 1-10 分'
 }
 
 const form = reactive({
-  title: '', description: '', algorithm: 'single',
-  endAt: '', options: [{ label: '' }, { label: '' }]
+  title: '',
+  description: '',
+  algorithm: 'single',
+  visibility: 'public',
+  requireRealName: false,
+  endAt: '',
+  options: [{ label: '' }, { label: '' }]
 })
 
 const canCreate = computed(() =>
-  form.title.trim() && form.algorithm && form.endAt &&
-  form.options.every(o => o.label.trim()) && form.options.length >= 2
+  form.title.trim() &&
+  form.algorithm &&
+  form.endAt &&
+  form.options.length >= 2 &&
+  form.options.every((option) => option.label.trim())
 )
 
 const disabledDate = (time) => time.getTime() < Date.now() - 86400000
 
-// ⭐ 重点修改：改为 async 异步函数以支持审核调用
 const onCreate = async () => {
   if (!canCreate.value) return
+  if (form.visibility !== 'public' && !currentUser.isCertified) {
+    ElMessage.warning('请先在个人主页完成企业认证，再创建受限投票')
+    return
+  }
 
-  // 1. 全屏或区域加载提示，增加仪式感
+  submitting.value = true
   const loading = ElLoading.service({
     lock: true,
-    text: '智选 AI 正在审核内容安全...',
-    background: 'rgba(255, 255, 255, 0.8)'
+    text: '正在审核并发布投票...',
+    background: 'rgba(255,255,255,0.75)'
   })
 
   try {
-    // 2. 汇总所有文本进行一次性审核，节省百度云 QPS 额度
-    const contentToAudit = [
-      form.title,
-      form.description,
-      ...form.options.map(o => o.label)
-    ].join(' | ')
-
-    // 调用你配置了 API Key 的审核函数
+    const contentToAudit = [form.title, form.description, ...form.options.map((option) => option.label)].join(' | ')
     const audit = await checkTextSafe(contentToAudit)
-
     if (!audit.safe) {
-      // 如果审核不通过，直接拦截并提示原因
-      ElMessage.error({
-        message: `审核未通过：${audit.msg}`,
-        duration: 5000,
-        showClose: true
-      })
-      return 
+      ElMessage.error(`审核未通过：${audit.msg}`)
+      return
     }
 
-    // 3. 审核通过，执行原有的创建逻辑
-    const newPoll = {
-      id: Date.now(),
-      title: form.title.trim(),
-      description: form.description.trim() || '暂无描述',
+    const { data } = await api.post('/polls', {
+      title: form.title,
+      description: form.description,
       algorithm: form.algorithm,
-      status: 'active', // 既然通过了 AI 实时审核，状态可以直接设为进行中
-      createdAt: Date.now(),
+      visibility: form.visibility,
+      requireRealName: form.requireRealName,
       endAt: new Date(form.endAt).getTime(),
-      totalVotes: 0,
-      creator: currentUser.nickname,
-      options: form.options.map((o, i) => ({
-        id: Date.now() + i + 1,
-        label: o.label.trim(),
-        count: 0
-      }))
-    }
-
-    polls.unshift(newPoll) // 插入到响应式数组头部
-
-    ElMessage.success({
-      message: '投票已通过 AI 安全审核并成功发布 🎉',
-      duration: 3000
+      options: form.options
     })
-    router.push('/mypolls')
 
-  } catch (error) {
-    console.error('审核过程发生错误:', error)
-    ElMessage.error('安全审核服务响应超时，请重试')
+    ElMessage.success('投票已发布')
+    router.push(`/vote/${data.id}`)
+  } catch (err) {
+    ElMessage.error(err.response?.data?.error || '创建失败，请稍后重试')
   } finally {
-    // 无论成功失败都关闭加载状态
+    submitting.value = false
     loading.close()
   }
 }
 </script>
 
 <style scoped>
-.create-page { max-width: 800px; margin: 0 auto; padding: 24px; }
-.create-container { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); padding: 32px; }
+.create-page { max-width: 940px; margin: 0 auto; padding: 24px; }
+.create-container { background: #fff; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); padding: 32px; }
 .page-title { margin: 0 0 32px; font-size: 24px; color: #303133; text-align: center; }
-.algo-radio-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; width: 100%; }
-.algo-radio-card { flex: none !important; margin-right: 0 !important; height: 100%; }
+.algo-radio-group { display: grid; grid-template-columns: repeat(5, minmax(128px, 1fr)); gap: 16px; width: 100%; align-items: stretch; }
+.algo-radio-group :deep(.el-radio__input) { display: none !important; }
+.algo-radio-card { height: 100%; margin: 0 !important; width: 100%; }
 .algo-radio-card :deep(.el-radio__label) { display: block; width: 100%; padding: 0; }
-.algo-card-inner { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 12px; border: 2px solid #e4e7ed; border-radius: 10px; transition: all 0.2s; text-align: center; min-width: 120px; }
+.algo-card-inner { box-sizing: border-box; height: 100%; min-height: 130px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 18px 12px; border: 2px solid #e4e7ed; border-radius: 8px; transition: all 0.2s; text-align: center; }
 .algo-radio-card.is-checked .algo-card-inner { border-color: #409eff; background: #ecf5ff; }
-.algo-name { font-size: 14px; font-weight: 600; color: #303133; }
-.algo-desc { font-size: 11px; color: #909399; }
-.options-editor { display: flex; flex-direction: column; gap: 10px; }
+.algo-name { font-size: 15px; font-weight: 700; color: #303133; }
+.algo-desc { font-size: 12px; color: #909399; line-height: 1.4; }
+.visibility-group { margin-right: 12px; }
+.identity-setting { display: flex; flex-direction: column; gap: 8px; }
+.form-tip { font-size: 12px; color: #909399; margin-top: 8px; line-height: 1.5; }
+.options-editor { display: flex; flex-direction: column; gap: 10px; width: 100%; }
 .option-row { display: flex; align-items: center; gap: 10px; }
 .option-index { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: #409eff; color: #fff; border-radius: 50%; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+@media (max-width: 900px) {
+  .algo-radio-group { grid-template-columns: repeat(2, minmax(128px, 1fr)); }
+}
 </style>

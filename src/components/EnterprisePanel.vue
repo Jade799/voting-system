@@ -26,27 +26,25 @@
 
       <div class="action-area">
         <el-button type="primary" @click="openDialog" class="edit-btn">
-          <el-icon style="margin-right: 8px;"><Edit /></el-icon>
-          编辑个人资料
+          <el-icon><Edit /></el-icon>
+          编辑资料与认证
         </el-button>
       </div>
     </div>
 
-    <el-dialog v-model="dialogVisible" title="完善个人与企业信息" width="480px" append-to-body>
+    <el-dialog v-model="dialogVisible" title="完善个人与企业信息" width="520px" append-to-body>
       <el-form :model="formData" :rules="rules" ref="formRef" label-position="top">
-        
         <el-divider content-position="left">外观设置</el-divider>
         <div class="appearance-edit-section">
           <div class="upload-item">
-            <div class="upload-label">更换头像</div>
+            <div class="upload-label">头像</div>
             <div class="avatar-uploader" @click="triggerFileSelect('avatar')">
               <img v-if="formData.avatar" :src="formData.avatar" class="avatar-preview" />
               <div v-else class="upload-placeholder"><el-icon><Plus /></el-icon></div>
             </div>
           </div>
-          
           <div class="upload-item">
-            <div class="upload-label">更换背景</div>
+            <div class="upload-label">背景</div>
             <div class="bg-uploader" @click="triggerFileSelect('bgImage')">
               <img v-if="formData.bgImage" :src="formData.bgImage" class="bg-preview" />
               <div v-else class="upload-placeholder"><el-icon><Plus /></el-icon></div>
@@ -54,62 +52,56 @@
           </div>
         </div>
 
-        <input type="file" ref="avatarInputRef" style="display: none" accept="image/*" @change="handleFileChange($event, 'avatar')" />
-        <input type="file" ref="bgInputRef" style="display: none" accept="image/*" @change="handleFileChange($event, 'bgImage')" />
+        <input type="file" ref="avatarInputRef" class="hidden-input" accept="image/*" @change="handleFileChange($event, 'avatar')" />
+        <input type="file" ref="bgInputRef" class="hidden-input" accept="image/*" @change="handleFileChange($event, 'bgImage')" />
 
         <el-divider content-position="left">基本信息</el-divider>
         <el-form-item label="昵称" prop="nickname">
-          <el-input v-model="formData.nickname"></el-input>
+          <el-input v-model="formData.nickname" />
         </el-form-item>
-
         <el-form-item label="个性签名">
-          <el-input 
-            v-model="formData.signature" 
-            type="textarea" 
-            :rows="2" 
-            placeholder="写下你的个性签名..." 
-          />
+          <el-input v-model="formData.signature" type="textarea" :rows="2" placeholder="写下你的个性签名" />
         </el-form-item>
 
-        <el-form-item label="修改密码">
-          <el-input v-model="formData.password" type="password" placeholder="不修改请留空" show-password></el-input>
-        </el-form-item>
-
-        <el-divider content-position="left">企业认证（选填）</el-divider>
+        <el-divider content-position="left">企业认证</el-divider>
         <el-form-item label="公司全称">
-          <el-input v-model="formData.companyName" placeholder="请输入公司全称"></el-input>
+          <el-input v-model="formData.companyName" placeholder="请输入公司全称" />
         </el-form-item>
         <el-form-item label="真实姓名">
-          <el-input v-model="formData.realName" placeholder="请输入真实姓名"></el-input>
+          <el-input v-model="formData.realName" placeholder="请输入真实姓名" />
         </el-form-item>
-      </el-form> <template #footer>
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="submitForm">保存修改</el-button>
+        <div class="cert-tip">公司账号可通过员工名单导入接口维护在职员工。员工姓名与企业匹配后，即可进入企业内部投票空间。</div>
+      </el-form>
+
+      <template #footer>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="saving" @click="submitForm">保存修改</el-button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, defineProps, defineEmits } from 'vue'
+import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Edit, Plus } from '@element-plus/icons-vue'
-import axios from 'axios'
+import { api, setSession } from '../services/api.js'
 
-const props = defineProps(['initialUserInfo'])
+const props = defineProps({
+  initialUserInfo: { type: Object, required: true }
+})
 const emit = defineEmits(['update-user'])
 
 const dialogVisible = ref(false)
+const saving = ref(false)
 const formRef = ref(null)
 const avatarInputRef = ref(null)
 const bgInputRef = ref(null)
 
-// 在响应式对象中加入 signature
-const formData = reactive({ 
-  nickname: '', 
-  password: '', 
-  signature: '', 
-  companyName: '', 
+const formData = reactive({
+  nickname: '',
+  signature: '',
+  companyName: '',
   realName: '',
   avatar: '',
   bgImage: ''
@@ -120,12 +112,14 @@ const rules = {
 }
 
 const openDialog = () => {
-  formData.nickname = props.initialUserInfo.nickname || ''
-  formData.signature = props.initialUserInfo.signature || '' // 当前签名
-  formData.companyName = props.initialUserInfo.companyName || ''
-  formData.realName = props.initialUserInfo.realName || ''
-  formData.avatar = props.initialUserInfo.avatar || ''
-  formData.bgImage = props.initialUserInfo.bgImage || ''
+  Object.assign(formData, {
+    nickname: props.initialUserInfo.nickname || '',
+    signature: props.initialUserInfo.signature || '',
+    companyName: props.initialUserInfo.companyName || '',
+    realName: props.initialUserInfo.realName || '',
+    avatar: props.initialUserInfo.avatar || '',
+    bgImage: props.initialUserInfo.bgImage || ''
+  })
   dialogVisible.value = true
 }
 
@@ -143,8 +137,7 @@ const handleFileChange = (event, type) => {
   }
   const reader = new FileReader()
   reader.onload = (e) => {
-    if (type === 'avatar') formData.avatar = e.target.result
-    else formData.bgImage = e.target.result
+    formData[type] = e.target.result
   }
   reader.readAsDataURL(file)
 }
@@ -153,46 +146,39 @@ const submitForm = async () => {
   const valid = await formRef.value.validate()
   if (!valid) return
 
+  saving.value = true
   try {
     let isCertified = false
     if (formData.companyName && formData.realName) {
-      const response = await axios.post('http://localhost:3000/api/verify-enterprise', {
+      const { data } = await api.post('/verify-enterprise', {
         companyName: formData.companyName,
         realName: formData.realName
       })
-      if (response.data.success) isCertified = true
+      isCertified = !!data.success
     }
 
-    // 补充：在提交的数据中包含 signature，这样父组件和 UserInfo 才能同步
-    const updatedData = {
-      nickname: formData.nickname,
-      signature: formData.signature, // 签名
-      companyName: formData.companyName,
-      realName: formData.realName,
-      avatar: formData.avatar,
-      bgImage: formData.bgImage,
-      isCertified: isCertified
-    }
-
+    const updatedData = { ...formData, isCertified }
+    await api.put('/user/profile', updatedData)
+    setSession(null, updatedData)
     emit('update-user', updatedData)
-    ElMessage.success(isCertified ? '企业认证成功！' : '资料已同步更新')
+    ElMessage.success(isCertified ? '企业认证成功，资料已保存' : '资料已保存')
     dialogVisible.value = false
   } catch (error) {
-    const errorMsg = error.response?.data?.message || '认证失败，信息不匹配'
-    ElMessage.error(errorMsg)
+    ElMessage.error(error.response?.data?.message || error.response?.data?.error || '保存失败')
+  } finally {
+    saving.value = false
   }
 }
 </script>
 
 <style scoped>
-/* 保持你原有的样式不变 */
-.enterprise-panel-container { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); border: 1px solid #f0f2f5; }
-.display-vertical { display: flex; flex-direction: column; gap: 18px; margin-bottom: 26px; }
-.info-item { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid #f8fafc; }
+.enterprise-panel-container { background: #fff; border-radius: 8px; padding: 20px; border: 1px solid #f0f2f5; }
+.display-vertical { display: flex; flex-direction: column; gap: 16px; margin-bottom: 22px; }
+.info-item { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid #f8fafc; gap: 12px; }
 .info-item .label { font-size: 13px; color: #64748b; font-weight: 500; }
-.info-item .value { font-size: 14px; color: #0f172a; font-weight: 600; text-align: right; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.action-area { border-top: 1px solid #f1f5f9; padding-top: 20px; }
-.edit-btn { width: 100%; height: 42px; border-radius: 10px; font-weight: 600; background: linear-gradient(135deg, #6392f1 0%, #6392f1 100%); border: none; color: white; cursor: pointer; }
+.info-item .value { font-size: 14px; color: #0f172a; font-weight: 600; text-align: right; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.action-area { border-top: 1px solid #f1f5f9; padding-top: 18px; }
+.edit-btn { width: 100%; height: 42px; border-radius: 8px; font-weight: 600; }
 .appearance-edit-section { display: flex; gap: 30px; justify-content: center; margin-bottom: 20px; }
 .upload-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .upload-label { font-size: 12px; color: #94a3b8; }
@@ -201,5 +187,6 @@ const submitForm = async () => {
 .bg-uploader { width: 120px; height: 80px; }
 .avatar-preview, .bg-preview { width: 100%; height: 100%; object-fit: cover; }
 .upload-placeholder { display: flex; justify-content: center; align-items: center; height: 100%; color: #8c939d; font-size: 20px; }
-:deep(.el-divider__text) { font-weight: bold; color: #e16eaa; }
+.hidden-input { display: none; }
+.cert-tip { font-size: 12px; line-height: 1.6; color: #909399; background: #f7f9fc; padding: 10px 12px; border-radius: 8px; }
 </style>

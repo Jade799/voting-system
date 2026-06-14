@@ -1,0 +1,143 @@
+<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+ <Styles>
+  <Style ss:ID="Header">
+   <Font ss:Bold="1"/>
+   <Interior ss:Color="#D9EAF7" ss:Pattern="Solid"/>
+  </Style>
+ </Styles>
+ <Worksheet ss:Name="企业员工名单">
+  <Table>
+   <Row>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">公司名称</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">员工姓名</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">员工工号</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">账号/邮箱</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">测试说明</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Pledis</Data></Cell>
+    <Cell><Data ss:Type="String">尹净汉</Data></Cell>
+    <Cell><Data ss:Type="String">P001</Data></Cell>
+    <Cell><Data ss:Type="String">demo@vote.com</Data></Cell>
+    <Cell><Data ss:Type="String">可用于企业认证测试：公司填 Pledis 或 pledis，姓名填尹净汉</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Pledis</Data></Cell>
+    <Cell><Data ss:Type="String">洪知秀</Data></Cell>
+    <Cell><Data ss:Type="String">P002</Data></Cell>
+    <Cell><Data ss:Type="String">joshua@pledis.test</Data></Cell>
+    <Cell><Data ss:Type="String">Pledis 虚拟员工</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Pledis</Data></Cell>
+    <Cell><Data ss:Type="String">崔胜澈</Data></Cell>
+    <Cell><Data ss:Type="String">P003</Data></Cell>
+    <Cell><Data ss:Type="String">scoups@pledis.test</Data></Cell>
+    <Cell><Data ss:Type="String">Pledis 虚拟员工</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Pledis</Data></Cell>
+    <Cell><Data ss:Type="String">文俊辉</Data></Cell>
+    <Cell><Data ss:Type="String">P004</Data></Cell>
+    <Cell><Data ss:Type="String">jun@pledis.test</Data></Cell>
+    <Cell><Data ss:Type="String">Pledis 虚拟员工</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Pledis</Data></Cell>
+    <Cell><Data ss:Type="String">权顺荣</Data></Cell>
+    <Cell><Data ss:Type="String">P005</Data></Cell>
+    <Cell><Data ss:Type="String">hoshi@pledis.test</Data></Cell>
+    <Cell><Data ss:Type="String">Pledis 虚拟员工</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Pledis</Data></Cell>
+    <Cell><Data ss:Type="String">全圆佑</Data></Cell>
+    <Cell><Data ss:Type="String">P006</Data></Cell>
+    <Cell><Data ss:Type="String">wonwoo@pledis.test</Data></Cell>
+    <Cell><Data ss:Type="String">Pledis 虚拟员工</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Pledis</Data></Cell>
+    <Cell><Data ss:Type="String">李知勋</Data></Cell>
+    <Cell><Data ss:Type="String">P007</Data></Cell>
+    <Cell><Data ss:Type="String">woozi@pledis.test</Data></Cell>
+    <Cell><Data ss:Type="String">Pledis 虚拟员工</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Pledis</Data></Cell>
+    <Cell><Data ss:Type="String">李硕珉</Data></Cell>
+    <Cell><Data ss:Type="String">P008</Data></Cell>
+    <Cell><Data ss:Type="String">dk@pledis.test</Data></Cell>
+    <Cell><Data ss:Type="String">Pledis 虚拟员工</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Pledis</Data></Cell>
+    <Cell><Data ss:Type="String">金珉奎</Data></Cell>
+    <Cell><Data ss:Type="String">P009</Data></Cell>
+    <Cell><Data ss:Type="String">mingyu@pledis.test</Data></Cell>
+    <Cell><Data ss:Type="String">Pledis 虚拟员工</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Pledis</Data></Cell>
+    <Cell><Data ss:Type="String">徐明浩</Data></Cell>
+    <Cell><Data ss:Type="String">P010</Data></Cell>
+    <Cell><Data ss:Type="String">the8@pledis.test</Data></Cell>
+    <Cell><Data ss:Type="String">Pledis 虚拟员工</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Pledis</Data></Cell>
+    <Cell><Data ss:Type="String">夫胜宽</Data></Cell>
+    <Cell><Data ss:Type="String">P011</Data></Cell>
+    <Cell><Data ss:Type="String">seungkwan@pledis.test</Data></Cell>
+    <Cell><Data ss:Type="String">Pledis 虚拟员工</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Pledis</Data></Cell>
+    <Cell><Data ss:Type="String">崔韩率</Data></Cell>
+    <Cell><Data ss:Type="String">P012</Data></Cell>
+    <Cell><Data ss:Type="String">vernon@pledis.test</Data></Cell>
+    <Cell><Data ss:Type="String">Pledis 虚拟员工</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Pledis</Data></Cell>
+    <Cell><Data ss:Type="String">李灿</Data></Cell>
+    <Cell><Data ss:Type="String">P013</Data></Cell>
+    <Cell><Data ss:Type="String">dino@pledis.test</Data></Cell>
+    <Cell><Data ss:Type="String">Pledis 虚拟员工</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">HYBE</Data></Cell>
+    <Cell><Data ss:Type="String">金敏智</Data></Cell>
+    <Cell><Data ss:Type="String">H001</Data></Cell>
+    <Cell><Data ss:Type="String">minji@hybe.test</Data></Cell>
+    <Cell><Data ss:Type="String">HYBE 虚拟员工</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">HYBE</Data></Cell>
+    <Cell><Data ss:Type="String">李惠仁</Data></Cell>
+    <Cell><Data ss:Type="String">H002</Data></Cell>
+    <Cell><Data ss:Type="String">hyein@hybe.test</Data></Cell>
+    <Cell><Data ss:Type="String">HYBE 虚拟员工</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Acme Technology</Data></Cell>
+    <Cell><Data ss:Type="String">张三</Data></Cell>
+    <Cell><Data ss:Type="String">A001</Data></Cell>
+    <Cell><Data ss:Type="String">zhangsan@acme.test</Data></Cell>
+    <Cell><Data ss:Type="String">Acme 虚拟员工</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Acme Technology</Data></Cell>
+    <Cell><Data ss:Type="String">李四</Data></Cell>
+    <Cell><Data ss:Type="String">A002</Data></Cell>
+    <Cell><Data ss:Type="String">lisi@acme.test</Data></Cell>
+    <Cell><Data ss:Type="String">Acme 虚拟员工</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+</Workbook>

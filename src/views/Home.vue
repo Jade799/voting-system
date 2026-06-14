@@ -107,10 +107,10 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Search } from '@element-plus/icons-vue'
-import { polls, algorithmLabels, algorithmColors } from '../mock/polls.js'
+import { polls, algorithmLabels, algorithmColors, loadPollsFromDatabase } from '../mock/polls.js'
 import PollCard from '../components/PollCard.vue'
 
 const route = useRoute()
@@ -190,6 +190,10 @@ const paginatedPolls = computed(() => {
 
 watch([statusFilter, algoFilter, sortBy], () => {
   currentPage.value = 1
+})
+
+onMounted(() => {
+  loadPollsFromDatabase()
 })
 </script>
 
